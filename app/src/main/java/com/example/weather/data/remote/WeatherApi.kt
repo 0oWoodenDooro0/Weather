@@ -1,30 +1,42 @@
 package com.example.weather.data.remote
 
-import com.example.weather.data.remote.dto.weather_info.WeatherInfoDto
-import com.example.weather.data.remote.dto.weekly_weather_info.WeeklyWeatherInfoDto
+import com.example.weather.data.remote.dto.WeatherInfoDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherApi {
-    @GET("/api/v1/rest/datastore/F-C0032-001")
+
+    @GET("/v1/forecast")
     suspend fun getWeatherInfo(
-        @Query("Authorization") key: String,
-        @Query("locationName") location: String,
-        @Query("sort") sort: String = "time",
-        @Query("timeFrom") timeFrom: String = ""
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("current") current: Array<String> = arrayOf(
+            "temperature_2m",
+            "relative_humidity_2m",
+            "apparent_temperature",
+            "is_day",
+            "weather_code",
+            "surface_pressure",
+            "wind_speed_10m",
+            "wind_direction_10m"
+        ),
+        @Query("hourly") hourly: Array<String> = arrayOf(
+            "temperature_2m",
+            "precipitation_probability",
+            "weather_code",
+            "is_day"
+        ),
+        @Query("daily", encoded = true) daily: Array<String> = arrayOf(
+            "weather_code",
+            "temperature_2m_max",
+            "temperature_2m_min",
+            "uv_index_max",
+            "precipitation_probability_max"
+        ),
+        @Query("timezone") timezone: String = "GMT"
     ): WeatherInfoDto
 
-    @GET("/api/v1/rest/datastore/F-D0047-091")
-    suspend fun getWeekWeatherInfo(
-        @Query("Authorization") key: String,
-        @Query("locationName") location: String,
-        @Query("elementName") elementName: Array<String> = arrayOf("Wx", "MinT", "MaxT"),
-        @Query("sort") sort: String = "time",
-        @Query("timeFrom") timeFrom: String = ""
-    ): WeeklyWeatherInfoDto
-
     companion object {
-        const val CWA_BASE_URL = "https://opendata.cwa.gov.tw/"
-        const val BASE_URL = "https://open-meteo.com/"
+        const val BASE_URL = "https://api.open-meteo.com/"
     }
 }
