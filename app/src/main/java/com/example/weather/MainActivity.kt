@@ -6,7 +6,9 @@ import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,11 +17,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.weather.core.LocationClient
@@ -49,29 +54,35 @@ class MainActivity : ComponentActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
             var latLng by remember { mutableStateOf<LatLng?>(null) }
             var locationCity by remember { mutableStateOf<String?>(null) }
-            locationClient.getLastLocation().onEach { currentLocation ->
-                latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
-                latLng?.let {
-                    val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
-                    val geocodeListener = Geocoder.GeocodeListener { addresses ->
-                        if (locationCity != addresses.first().adminArea) {
-                            locationCity = addresses.first().adminArea
-                        }
-                    }
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        geocoder.getFromLocation(it.latitude, it.longitude, 1, geocodeListener)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        val city = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                            ?.let { addresses ->
-                                addresses.first()?.adminArea
+            SideEffect {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb()),
+                    navigationBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                )
+                locationClient.getLastLocation().onEach { currentLocation ->
+                    latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+                    latLng?.let {
+                        val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
+                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+                            if (locationCity != addresses.first().adminArea) {
+                                locationCity = addresses.first().adminArea
                             }
-                        if (locationCity != city) {
-                            locationCity = city
+                        }
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            geocoder.getFromLocation(it.latitude, it.longitude, 1, geocodeListener)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            val city = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                                ?.let { addresses ->
+                                    addresses.first()?.adminArea
+                                }
+                            if (locationCity != city) {
+                                locationCity = city
+                            }
                         }
                     }
-                }
-            }.launchIn(lifecycleScope)
+                }.launchIn(lifecycleScope)
+            }
             WeatherTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
@@ -84,19 +95,30 @@ class MainActivity : ComponentActivity() {
                             locationCity = locationCity,
                             onGPSClick = {
                                 locationClient.getLastLocation().onEach { currentLocation ->
-                                    latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
+                                    latLng =
+                                        LatLng(currentLocation.latitude, currentLocation.longitude)
                                     latLng?.let {
                                         val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
-                                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
-                                            if (locationCity != addresses.first().adminArea) {
-                                                locationCity = addresses.first().adminArea
+                                        val geocodeListener =
+                                            Geocoder.GeocodeListener { addresses ->
+                                                if (locationCity != addresses.first().adminArea) {
+                                                    locationCity = addresses.first().adminArea
+                                                }
                                             }
-                                        }
                                         if (Build.VERSION.SDK_INT >= 33) {
-                                            geocoder.getFromLocation(it.latitude, it.longitude, 1, geocodeListener)
+                                            geocoder.getFromLocation(
+                                                it.latitude,
+                                                it.longitude,
+                                                1,
+                                                geocodeListener
+                                            )
                                         } else {
                                             @Suppress("DEPRECATION")
-                                            val city = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                                            val city = geocoder.getFromLocation(
+                                                it.latitude,
+                                                it.longitude,
+                                                1
+                                            )
                                                 ?.let { addresses ->
                                                     addresses.first()?.adminArea
                                                 }

@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Card
@@ -76,6 +78,33 @@ fun WeatherInfoScreen(
             "金門縣",
             "連江縣"
         )
+        val icons = mapOf(
+            0 to Pair(R.drawable.clear_day, R.drawable.clear_night),
+            1 to Pair(R.drawable.mainly_clear_day, R.drawable.mainly_clear_night),
+            2 to Pair(R.drawable.partly_cloudly_day, R.drawable.partly_cloudly_night),
+            3 to Pair(R.drawable.overcast_day, R.drawable.overcast_night),
+            45 to Pair(R.drawable.fog, R.drawable.fog),
+            48 to Pair(R.drawable.fog, R.drawable.fog),
+            51 to Pair(R.drawable.drizzle, R.drawable.drizzle),
+            53 to Pair(R.drawable.drizzle, R.drawable.drizzle),
+            55 to Pair(R.drawable.drizzle, R.drawable.drizzle),
+            56 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
+            57 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
+            61 to Pair(R.drawable.rain, R.drawable.rain),
+            63 to Pair(R.drawable.rain, R.drawable.rain),
+            65 to Pair(R.drawable.rain, R.drawable.rain),
+            66 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
+            67 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
+            71 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
+            73 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
+            75 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
+            77 to Pair(R.drawable.snow_grains, R.drawable.snow_grains),
+            80 to Pair(R.drawable.rain_shower, R.drawable.rain_shower),
+            81 to Pair(R.drawable.rain_shower, R.drawable.rain_shower),
+            82 to Pair(R.drawable.heavy_rain_shower, R.drawable.heavy_rain_shower),
+            85 to Pair(R.drawable.snow_shower, R.drawable.snow_shower),
+            86 to Pair(R.drawable.snow_shower, R.drawable.snow_shower)
+        )
         var expanded by remember { mutableStateOf(false) }
         var selectedIndex by remember { mutableStateOf(0) }
         var gpsFixed by remember { mutableStateOf(true) }
@@ -119,7 +148,7 @@ fun WeatherInfoScreen(
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center
         ) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -151,7 +180,10 @@ fun WeatherInfoScreen(
                     }
                 }
             }
-            IconButton(onClick = onGPSClick) {
+            IconButton(onClick = {
+                onGPSClick()
+                gpsFixed = true
+            }) {
                 Icon(
                     painter = painterResource(
                         id = if (latLng == null) {
@@ -184,19 +216,25 @@ fun WeatherInfoScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "${current.temperature_2m.roundToInt()}°",
                                 fontSize = 30.sp
                             )
-                            Text(text = current.weather_code.toString())
+                            Icon(
+                                painter = painterResource(id = if (current.is_day == 1) icons[current.weather_code]!!.first else icons[current.weather_code]!!.second),
+                                contentDescription = "Weather",
+                                modifier = Modifier
+                                    .height(70.dp)
+                                    .width(70.dp)
+                            )
                         }
                         Text(
                             text = "體感溫度: ${current.apparent_temperature.roundToInt()}°",
                             fontSize = 16.sp
                         )
                     }
-                    Text(text = "High: ${daily.temperature_2m_max.first()}° Low: ${daily.temperature_2m_min.first()}°")
+                    Text(text = "High: ${daily.temperature_2m_max.first().roundToInt()}° Low: ${daily.temperature_2m_min.first().roundToInt()}°")
                     Text(
                         text = "Hourly forecast",
                         modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
@@ -222,7 +260,13 @@ fun WeatherInfoScreen(
                                             text = if (hourly.precipitation_probability[index + hourlyOffset] < 10) "" else "${hourly.precipitation_probability[index]}%",
                                             fontSize = 12.sp
                                         )
-                                        Text(text = "${hourly.weather_code[index + hourlyOffset]}")
+                                        Icon(
+                                            painter = painterResource(id = if (hourly.is_day[index + hourlyOffset] == 1) icons[hourly.weather_code[index + hourlyOffset]]!!.first else icons[hourly.weather_code[index + hourlyOffset]]!!.second),
+                                            contentDescription = "Weather",
+                                            modifier = Modifier
+                                                .width(40.dp)
+                                                .height(40.dp)
+                                        )
                                         Text(
                                             text = if (hourlyOffset == 0) "Now" else hourly.time[index + hourlyOffset].hourlyToLocalDateTime()
                                                 .formatToHour(),
@@ -244,6 +288,7 @@ fun WeatherInfoScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(5.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = if (index == 0) "TODAY" else daily.time[index].dailyToLocalDateTime().dayOfWeek.toString(),
@@ -251,17 +296,21 @@ fun WeatherInfoScreen(
                         )
                         Row(
                             modifier = Modifier.weight(2f),
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = if (daily.precipitation_probability_max[index] < 10) "" else "${daily.precipitation_probability_max[index]}%",
                                 modifier = Modifier.weight(2f),
                                 textAlign = TextAlign.End
                             )
-                            Text(
-                                text = daily.weather_code[index].toString(),
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Start
+                            Icon(
+                                painter = painterResource(id = icons[daily.weather_code[index]]!!.first),
+                                contentDescription = "Weather",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .width(30.dp)
+                                    .height(30.dp)
                             )
                         }
                         Text(
