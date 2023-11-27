@@ -31,9 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weather.R
-import com.example.weather.WeatherApp
 import com.example.weather.domain.model.LatLng
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,12 +43,8 @@ import kotlin.math.roundToInt
 @Composable
 fun WeatherInfoScreen(
     modifier: Modifier = Modifier,
-    application: WeatherApp,
-    weatherViewModel: WeatherInfoViewModel = viewModel(
-        factory = WeatherInfoViewModel.WeatherInfoViewModelFactory(
-            application.getWeatherInfo
-        )
-    ),
+    weatherState: () -> WeatherInfoState,
+    onSearch: (LatLng) -> Unit,
     latLng: LatLng?,
     locationCity: String?,
     onGPSClick: () -> Unit
@@ -116,7 +110,7 @@ fun WeatherInfoScreen(
                     selectedIndex = options.indexOf(locationCity)
                 }
             }
-            latLng?.let { weatherViewModel.onSearch(it) }
+            latLng?.let { onSearch(it) }
         }
         LaunchedEffect(key1 = selectedIndex) {
             val cityLatLngs = listOf(
@@ -143,7 +137,7 @@ fun WeatherInfoScreen(
                 LatLng(24.44721326055131, 118.37354654698757),
                 LatLng(26.16141282202582, 119.95025445840824),
             )
-            weatherViewModel.onSearch(cityLatLngs[selectedIndex])
+            onSearch(cityLatLngs[selectedIndex])
             gpsFixed = false
         }
         Row(
@@ -199,9 +193,8 @@ fun WeatherInfoScreen(
                 )
             }
         }
-        val weatherState = weatherViewModel.state
         LazyColumn(modifier = Modifier.padding(10.dp)) {
-            weatherState.value.weatherInfo?.let { weatherInfo ->
+            weatherState().weatherInfo?.let { weatherInfo ->
                 val current = weatherInfo.current
                 val hourly = weatherInfo.hourly
                 val daily = weatherInfo.daily

@@ -27,9 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weather.core.LocationClient
 import com.example.weather.domain.model.LatLng
 import com.example.weather.presentation.WeatherInfoScreen
+import com.example.weather.presentation.WeatherInfoViewModel
 import com.example.weather.ui.theme.WeatherTheme
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -38,6 +40,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private lateinit var locationClient: LocationClient
+    private lateinit var viewModel: WeatherInfoViewModel
 
     @SuppressLint("CoroutineCreationDuringComposition", "FlowOperatorInvokedInComposition")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -51,36 +54,36 @@ class MainActivity : ComponentActivity() {
         )
         locationClient = LocationClient(applicationContext, this)
         setContent {
+            viewModel =
+                viewModel(factory = WeatherInfoViewModel.WeatherInfoViewModelFactory((application as WeatherApp).getWeatherInfo))
             val snackbarHostState = remember { SnackbarHostState() }
             var latLng by remember { mutableStateOf<LatLng?>(null) }
             var locationCity by remember { mutableStateOf<String?>(null) }
             SideEffect {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(),
-                        Color.Transparent.toArgb()
-                    ),
-                    navigationBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(),
-                        Color.Transparent.toArgb()
+                        Color.Transparent.toArgb(), Color.Transparent.toArgb()
+                    ), navigationBarStyle = SystemBarStyle.auto(
+                        Color.Transparent.toArgb(), Color.Transparent.toArgb()
                     )
                 )
                 locationClient.getLastLocation().onEach { currentLocation ->
                     latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
                     latLng?.let {
                         val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            geocoder.getFromLocation(it.latitude, it.longitude, 1) { addresses ->
-                                if (locationCity != addresses.first().adminArea) {
-                                    locationCity = addresses.first().adminArea
-                                }
+                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+                            if (locationCity != addresses.first().adminArea) {
+                                locationCity = addresses.first().adminArea
                             }
+                        }
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            geocoder.getFromLocation(it.latitude, it.longitude, 1, geocodeListener)
                         } else {
-                            @Suppress("DEPRECATION")
-                            val city = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                                ?.let { addresses ->
-                                    addresses.first()?.adminArea
-                                }
+                            @Suppress("DEPRECATION") val city =
+                                geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                                    ?.let { addresses ->
+                                        addresses.first()?.adminArea
+                                    }
                             if (locationCity != city) {
                                 locationCity = city
                             }
@@ -93,9 +96,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { contentPadding ->
-                        WeatherInfoScreen(
-                            modifier = Modifier.padding(contentPadding),
-                            application = application as WeatherApp,
+                        WeatherInfoScreen(modifier = Modifier.padding(contentPadding),
+                            weatherState = { viewModel.state.value },
+                            onSearch = viewModel::onSearch,
                             latLng = latLng,
                             locationCity = locationCity,
                             onGPSClick = {
@@ -112,29 +115,22 @@ class MainActivity : ComponentActivity() {
                                             }
                                         if (Build.VERSION.SDK_INT >= 33) {
                                             geocoder.getFromLocation(
-                                                it.latitude,
-                                                it.longitude,
-                                                1,
-                                                geocodeListener
+                                                it.latitude, it.longitude, 1, geocodeListener
                                             )
                                         } else {
-                                            @Suppress("DEPRECATION")
-                                            val city = geocoder.getFromLocation(
-                                                it.latitude,
-                                                it.longitude,
-                                                1
-                                            )
-                                                ?.let { addresses ->
-                                                    addresses.first()?.adminArea
-                                                }
+                                            @Suppress("DEPRECATION") val city =
+                                                geocoder.getFromLocation(
+                                                    it.latitude, it.longitude, 1
+                                                )?.let { addresses ->
+                                                        addresses.first()?.adminArea
+                                                    }
                                             if (locationCity != city) {
                                                 locationCity = city
                                             }
                                         }
                                     }
                                 }.launchIn(lifecycleScope)
-                            }
-                        )
+                            })
                     }
                 }
             }
