@@ -56,20 +56,25 @@ class MainActivity : ComponentActivity() {
             var locationCity by remember { mutableStateOf<String?>(null) }
             SideEffect {
                 enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb()),
-                    navigationBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+                    statusBarStyle = SystemBarStyle.auto(
+                        Color.Transparent.toArgb(),
+                        Color.Transparent.toArgb()
+                    ),
+                    navigationBarStyle = SystemBarStyle.auto(
+                        Color.Transparent.toArgb(),
+                        Color.Transparent.toArgb()
+                    )
                 )
                 locationClient.getLastLocation().onEach { currentLocation ->
                     latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
                     latLng?.let {
                         val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
-                        val geocodeListener = Geocoder.GeocodeListener { addresses ->
-                            if (locationCity != addresses.first().adminArea) {
-                                locationCity = addresses.first().adminArea
-                            }
-                        }
                         if (Build.VERSION.SDK_INT >= 33) {
-                            geocoder.getFromLocation(it.latitude, it.longitude, 1, geocodeListener)
+                            geocoder.getFromLocation(it.latitude, it.longitude, 1) { addresses ->
+                                if (locationCity != addresses.first().adminArea) {
+                                    locationCity = addresses.first().adminArea
+                                }
+                            }
                         } else {
                             @Suppress("DEPRECATION")
                             val city = geocoder.getFromLocation(it.latitude, it.longitude, 1)

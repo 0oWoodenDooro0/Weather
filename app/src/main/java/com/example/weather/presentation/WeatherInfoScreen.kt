@@ -1,5 +1,6 @@
 package com.example.weather.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ import com.example.weather.domain.model.LatLng
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,7 +110,6 @@ fun WeatherInfoScreen(
         var expanded by remember { mutableStateOf(false) }
         var selectedIndex by remember { mutableStateOf(0) }
         var gpsFixed by remember { mutableStateOf(true) }
-        val currentTime = LocalDateTime.now()
         LaunchedEffect(key1 = locationCity) {
             locationCity?.let {
                 if (locationCity in options) {
@@ -204,7 +205,9 @@ fun WeatherInfoScreen(
                 val current = weatherInfo.current
                 val hourly = weatherInfo.hourly
                 val daily = weatherInfo.daily
-                val hourlyOffset = hourly.time.getHourlyOffset(currentTime)
+                val hourlyOffset = hourly.time.getHourlyOffset(
+                    current.time.hourlyToLocalDateTime().truncatedTo(ChronoUnit.HOURS)
+                )
                 item {
                     Text(
                         text = "Now",
@@ -221,8 +224,12 @@ fun WeatherInfoScreen(
                                 text = "${current.temperature_2m.roundToInt()}°",
                                 fontSize = 30.sp
                             )
-                            Icon(
-                                painter = painterResource(id = if (current.is_day == 1) icons[current.weather_code]!!.first else icons[current.weather_code]!!.second),
+                            Image(
+                                painter = painterResource(
+                                    id = if (current.time.hourlyToLocalDateTime().plusHours(8L)
+                                            .isDay()
+                                    ) icons[current.weather_code]!!.first else icons[current.weather_code]!!.second
+                                ),
                                 contentDescription = "Weather",
                                 modifier = Modifier
                                     .height(70.dp)
@@ -234,7 +241,11 @@ fun WeatherInfoScreen(
                             fontSize = 16.sp
                         )
                     }
-                    Text(text = "High: ${daily.temperature_2m_max.first().roundToInt()}° Low: ${daily.temperature_2m_min.first().roundToInt()}°")
+                    Text(
+                        text = "High: ${
+                            daily.temperature_2m_max.first().roundToInt()
+                        }° Low: ${daily.temperature_2m_min.first().roundToInt()}°"
+                    )
                     Text(
                         text = "Hourly forecast",
                         modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
@@ -260,15 +271,19 @@ fun WeatherInfoScreen(
                                             text = if (hourly.precipitation_probability[index + hourlyOffset] < 10) "" else "${hourly.precipitation_probability[index]}%",
                                             fontSize = 12.sp
                                         )
-                                        Icon(
-                                            painter = painterResource(id = if (hourly.is_day[index + hourlyOffset] == 1) icons[hourly.weather_code[index + hourlyOffset]]!!.first else icons[hourly.weather_code[index + hourlyOffset]]!!.second),
+                                        Image(
+                                            painter = painterResource(
+                                                id = if (hourly.time[index + hourlyOffset].hourlyToLocalDateTime()
+                                                        .isDay()
+                                                ) icons[hourly.weather_code[index + hourlyOffset]]!!.first else icons[hourly.weather_code[index + hourlyOffset]]!!.second
+                                            ),
                                             contentDescription = "Weather",
                                             modifier = Modifier
                                                 .width(40.dp)
                                                 .height(40.dp)
                                         )
                                         Text(
-                                            text = if (hourlyOffset == 0) "Now" else hourly.time[index + hourlyOffset].hourlyToLocalDateTime()
+                                            text = if (index == 0) "Now" else hourly.time[index + hourlyOffset].hourlyToLocalDateTime()
                                                 .formatToHour(),
                                             fontSize = 14.sp
                                         )
@@ -304,7 +319,7 @@ fun WeatherInfoScreen(
                                 modifier = Modifier.weight(2f),
                                 textAlign = TextAlign.End
                             )
-                            Icon(
+                            Image(
                                 painter = painterResource(id = icons[daily.weather_code[index]]!!.first),
                                 contentDescription = "Weather",
                                 modifier = Modifier
@@ -327,8 +342,8 @@ fun WeatherInfoScreen(
 
 fun List<String>.getHourlyOffset(currentTime: LocalDateTime): Int {
     this.forEachIndexed { index, time ->
-        if (!time.hourlyToLocalDateTime().isBefore(currentTime)) {
-            return index + 1
+        if (time.hourlyToLocalDateTime().isEqual(currentTime)) {
+            return index + 8
         }
     }
     return 0
@@ -344,4 +359,8 @@ fun String.dailyToLocalDateTime(): LocalDate {
 
 fun LocalDateTime.formatToHour(): String {
     return DateTimeFormatter.ofPattern("h a").format(this)
+}
+
+fun LocalDateTime.isDay(): Boolean {
+    return this.hour in 6..17
 }

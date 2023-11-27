@@ -21,6 +21,7 @@ data class CurrentDto(
             relative_humidity_2m = relative_humidity_2m,
             surface_pressure = surface_pressure,
             temperature_2m = temperature_2m,
+            time = time,
             weather_code = weather_code,
             wind_direction_10m = wind_direction_10m,
             wind_speed_10m = wind_speed_10m
