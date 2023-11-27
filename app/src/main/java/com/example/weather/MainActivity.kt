@@ -33,6 +33,7 @@ import com.example.weather.domain.model.LatLng
 import com.example.weather.presentation.WeatherInfoScreen
 import com.example.weather.presentation.WeatherInfoViewModel
 import com.example.weather.ui.theme.WeatherTheme
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.util.Locale
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
                         Color.Transparent.toArgb(), Color.Transparent.toArgb()
                     )
                 )
-                locationClient.getLastLocation().onEach { currentLocation ->
+                locationClient.getLastLocation().catch { it.printStackTrace() }.onEach { currentLocation ->
                     latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
                     latLng?.let {
                         val geocoder = Geocoder(applicationContext, Locale.TAIWAN)
