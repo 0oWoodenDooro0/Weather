@@ -3,12 +3,10 @@ package com.example.weather.core
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
-import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.example.weather.MainActivity
 import com.example.weather.domain.model.LatLng
@@ -53,9 +51,6 @@ class LocationClient(
                             launch { send(LatLng(location.latitude, location.longitude)) }
                         }
                     }
-                } else {
-                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    context.startActivity(intent)
                 }
             } else {
                 requestPermissions()

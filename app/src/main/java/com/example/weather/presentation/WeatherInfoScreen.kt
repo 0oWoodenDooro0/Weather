@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weather.R
+import com.example.weather.core.Weather
 import com.example.weather.domain.model.Current
 import com.example.weather.domain.model.Daily
 import com.example.weather.domain.model.Hourly
@@ -61,94 +62,19 @@ fun WeatherInfoScreen(
     onGPSClick: () -> Unit
 ) {
     Column(modifier = modifier) {
-        val options = listOf(
-            "臺北市",
-            "新北市",
-            "桃園市",
-            "臺中市",
-            "臺南市",
-            "高雄市",
-            "基隆市",
-            "新竹縣",
-            "新竹市",
-            "苗栗縣",
-            "彰化縣",
-            "南投縣",
-            "雲林縣",
-            "嘉義縣",
-            "嘉義市",
-            "屏東縣",
-            "宜蘭縣",
-            "花蓮縣",
-            "臺東縣",
-            "澎湖縣",
-            "金門縣",
-            "連江縣"
-        )
-        val icons = mapOf(
-            0 to Pair(R.drawable.clear_day, R.drawable.clear_night),
-            1 to Pair(R.drawable.mainly_clear_day, R.drawable.mainly_clear_night),
-            2 to Pair(R.drawable.partly_cloudly_day, R.drawable.partly_cloudly_night),
-            3 to Pair(R.drawable.overcast_day, R.drawable.overcast_night),
-            45 to Pair(R.drawable.fog, R.drawable.fog),
-            48 to Pair(R.drawable.fog, R.drawable.fog),
-            51 to Pair(R.drawable.drizzle, R.drawable.drizzle),
-            53 to Pair(R.drawable.drizzle, R.drawable.drizzle),
-            55 to Pair(R.drawable.drizzle, R.drawable.drizzle),
-            56 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
-            57 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
-            61 to Pair(R.drawable.rain, R.drawable.rain),
-            63 to Pair(R.drawable.rain, R.drawable.rain),
-            65 to Pair(R.drawable.rain, R.drawable.rain),
-            66 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
-            67 to Pair(R.drawable.freezing_rain, R.drawable.freezing_rain),
-            71 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
-            73 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
-            75 to Pair(R.drawable.snow_fall, R.drawable.snow_fall),
-            77 to Pair(R.drawable.snow_grains, R.drawable.snow_grains),
-            80 to Pair(R.drawable.rain_shower, R.drawable.rain_shower),
-            81 to Pair(R.drawable.rain_shower, R.drawable.rain_shower),
-            82 to Pair(R.drawable.heavy_rain_shower, R.drawable.heavy_rain_shower),
-            85 to Pair(R.drawable.snow_shower, R.drawable.snow_shower),
-            86 to Pair(R.drawable.snow_shower, R.drawable.snow_shower)
-        )
         var expanded by remember { mutableStateOf(false) }
         var selectedIndex by remember { mutableStateOf(0) }
         var gpsFixed by remember { mutableStateOf(true) }
         LaunchedEffect(key1 = locationCity) {
             locationCity?.let {
-                if (locationCity in options) {
-                    selectedIndex = options.indexOf(locationCity)
+                if (locationCity in Weather.citys) {
+                    selectedIndex = Weather.citys.indexOf(locationCity)
                 }
             }
             latLng?.let { onSearch(it) }
         }
         LaunchedEffect(key1 = selectedIndex) {
-            val cityLatLngs = listOf(
-                LatLng(25.032271975394007, 121.5665022632825),
-                LatLng(25.063657710887785, 121.45910629315827),
-                LatLng(24.993551842079757, 121.29974453103846),
-                LatLng(24.16159627028736, 120.67541651012831),
-                LatLng(22.999720315706572, 120.22747249405285),
-                LatLng(22.62483578470256, 120.30193708199877),
-                LatLng(25.1256261061146, 121.74129458904989),
-                LatLng(24.694754437319816, 121.15574071515405),
-                LatLng(24.81488194293492, 120.97119733196254),
-                LatLng(24.465956080693058, 120.91341660006931),
-                LatLng(23.96355250170825, 120.4731148941611),
-                LatLng(23.82418346589851, 120.96967690656342),
-                LatLng(23.7100427644695, 120.42923266980927),
-                LatLng(23.452733408294687, 120.25571165608504),
-                LatLng(23.48162272930483, 120.4518668568933),
-                LatLng(22.552790927535224, 120.65264820569594),
-                LatLng(24.6017711500144, 121.64635438249279),
-                LatLng(23.881547901978003, 121.41770489771218),
-                LatLng(23.006770530481276, 121.02801270851685),
-                LatLng(23.573039324912937, 119.57888539440505),
-                LatLng(24.44721326055131, 118.37354654698757),
-                LatLng(26.16141282202582, 119.95025445840824),
-            )
-            onSearch(cityLatLngs[selectedIndex])
+            onSearch(Weather.cityLatLngs[selectedIndex])
             gpsFixed = false
         }
         Row(
@@ -163,7 +89,7 @@ fun WeatherInfoScreen(
                 TextField(
                     modifier = Modifier.menuAnchor(),
                     readOnly = true,
-                    value = options[selectedIndex],
+                    value = Weather.citys[selectedIndex],
                     onValueChange = {},
                     label = { Text("縣市") },
                     trailingIcon = {
@@ -175,9 +101,9 @@ fun WeatherInfoScreen(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    options.forEachIndexed { index, _ ->
+                    Weather.citys.forEachIndexed { index, _ ->
                         DropdownMenuItem(
-                            text = { Text(text = options[index]) },
+                            text = { Text(text = Weather.citys[index]) },
                             onClick = {
                                 selectedIndex = index
                                 expanded = false
@@ -222,25 +148,25 @@ fun WeatherInfoScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             text = "${current.temperature_2m.roundToInt()}°",
-                            fontSize = 30.sp
+                            fontSize = 60.sp
                         )
                         Image(
                             painter = painterResource(
                                 id = if (current.time.hourlyToLocalDateTime().plusHours(8L)
                                         .isDay()
-                                ) icons[current.weather_code]!!.first else icons[current.weather_code]!!.second
+                                ) Weather.weatherIcons[current.weather_code]!!.first else Weather.weatherIcons[current.weather_code]!!.second
                             ),
                             contentDescription = "Weather",
                             modifier = Modifier
-                                .height(70.dp)
-                                .width(70.dp)
+                                .height(60.dp)
+                                .width(60.dp)
                         )
                     }
                     Text(
-                        text = "體感溫度: ${current.apparent_temperature.roundToInt()}°",
+                        text = "Feels like ${current.apparent_temperature.roundToInt()}°",
                         fontSize = 16.sp
                     )
                 }
@@ -277,7 +203,7 @@ fun WeatherInfoScreen(
                                 )
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = if (hourly.precipitation_probability[index + hourlyOffset] < 10) "" else "${hourly.precipitation_probability[index]}%",
+                                        text = if (hourly.precipitation_probability[index + hourlyOffset] < 10) "" else "${hourly.precipitation_probability[index + hourlyOffset]}%",
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -285,7 +211,7 @@ fun WeatherInfoScreen(
                                         painter = painterResource(
                                             id = if (hourly.time[index + hourlyOffset].hourlyToLocalDateTime()
                                                     .isDay()
-                                            ) icons[hourly.weather_code[index + hourlyOffset]]!!.first else icons[hourly.weather_code[index + hourlyOffset]]!!.second
+                                            ) Weather.weatherIcons[hourly.weather_code[index + hourlyOffset]]!!.first else Weather.weatherIcons[hourly.weather_code[index + hourlyOffset]]!!.second
                                         ),
                                         contentDescription = "Weather",
                                         modifier = Modifier
@@ -331,7 +257,7 @@ fun WeatherInfoScreen(
                                     text = if (index == 0) "TODAY" else daily.time[index].dailyToLocalDateTime().dayOfWeek.toString(),
                                     modifier = Modifier
                                         .weight(1.5f)
-                                        .padding(start = 10.dp, top = 5.dp, bottom = 5.dp),
+                                        .padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Row(
@@ -346,7 +272,7 @@ fun WeatherInfoScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Image(
-                                        painter = painterResource(id = icons[daily.weather_code[index]]!!.first),
+                                        painter = painterResource(id = Weather.weatherIcons[daily.weather_code[index]]!!.first),
                                         contentDescription = "Weather",
                                         modifier = Modifier
                                             .weight(1f)
@@ -358,7 +284,7 @@ fun WeatherInfoScreen(
                                     text = "${daily.temperature_2m_max[index].roundToInt()}°/${daily.temperature_2m_min[index].roundToInt()}°",
                                     modifier = Modifier
                                         .weight(1f)
-                                        .padding(end = 10.dp, top = 5.dp, bottom = 5.dp),
+                                        .padding(end = 10.dp, top = 10.dp, bottom = 10.dp),
                                     textAlign = TextAlign.End,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
