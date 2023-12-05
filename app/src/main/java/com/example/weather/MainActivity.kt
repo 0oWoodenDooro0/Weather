@@ -10,24 +10,17 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weather.domain.model.LatLng
@@ -50,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: WeatherInfoViewModel
     private lateinit var geocoder: Geocoder
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,15 +78,8 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            val snackbarHostState = remember { SnackbarHostState() }
             SideEffect {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(), Color.Transparent.toArgb()
-                    ), navigationBarStyle = SystemBarStyle.auto(
-                        Color.Transparent.toArgb(), Color.Transparent.toArgb()
-                    )
-                )
+                enableEdgeToEdge()
                 if (checkPermissions()) {
                     if (isLocationEnabled()) {
                         viewModel.changeGPSState(GPSState.GPSNotFixed)
@@ -108,13 +94,13 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
             WeatherTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface
                 ) {
-                    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { contentPadding ->
+                    Scaffold {
                         WeatherInfoScreen(
-                            modifier = Modifier.padding(contentPadding),
                             weatherState = { viewModel.weatherInfoState.value },
                             onSearchWithCity = viewModel::onSearchWithLatLng,
                             selectedIndex = viewModel.selectedIndex.value,

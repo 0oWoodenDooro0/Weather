@@ -2,7 +2,6 @@ package com.example.weather.domain.model
 
 data class Current(
     val apparent_temperature: Double,
-    val is_day: Int,
     val relative_humidity_2m: Int,
     val surface_pressure: Double,
     val temperature_2m: Double,

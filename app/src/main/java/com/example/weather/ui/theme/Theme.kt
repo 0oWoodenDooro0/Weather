@@ -58,7 +58,12 @@ fun WeatherTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
+            window.statusBarColor = Color(
+                colorScheme.surface.red,
+                colorScheme.surface.green,
+                colorScheme.surface.blue,
+                0.8f
+            ).toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }

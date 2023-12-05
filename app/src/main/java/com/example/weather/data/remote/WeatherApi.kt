@@ -14,7 +14,6 @@ interface WeatherApi {
             "temperature_2m",
             "relative_humidity_2m",
             "apparent_temperature",
-            "is_day",
             "weather_code",
             "surface_pressure",
             "wind_speed_10m",
@@ -24,12 +23,13 @@ interface WeatherApi {
             "temperature_2m",
             "precipitation_probability",
             "weather_code",
-            "is_day"
         ),
         @Query("daily", encoded = true) daily: Array<String> = arrayOf(
             "weather_code",
             "temperature_2m_max",
             "temperature_2m_min",
+            "sunrise",
+            "sunset",
             "uv_index_max",
             "precipitation_probability_max"
         ),
