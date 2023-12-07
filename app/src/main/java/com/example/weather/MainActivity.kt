@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -80,19 +81,7 @@ class MainActivity : ComponentActivity() {
 
             SideEffect {
                 enableEdgeToEdge()
-                if (checkPermissions()) {
-                    if (isLocationEnabled()) {
-                        viewModel.changeGPSState(GPSState.GPSNotFixed)
-                        getLastLocation(locationCallback)
-                    }
-                } else {
-                    requestPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                    )
-                }
+                getLocation(locationCallback, requestPermissionLauncher)
             }
 
             WeatherTheme {
@@ -105,13 +94,32 @@ class MainActivity : ComponentActivity() {
                             onSearchWithCity = viewModel::onSearchWithLatLng,
                             selectedIndex = viewModel.selectedIndex.value,
                             onGPSClick = {
-                                getLastLocation(locationCallback)
+                                getLocation(locationCallback, requestPermissionLauncher)
                             },
                             gpsState = viewModel.gpsState.value
                         )
                     }
                 }
             }
+        }
+    }
+
+    fun getLocation(
+        locationCallback: LocationCallback,
+        requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
+    ) {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                viewModel.changeGPSState(GPSState.GPSNotFixed)
+                getLastLocation(locationCallback)
+            }
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
         }
     }
 

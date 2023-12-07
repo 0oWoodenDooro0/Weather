@@ -25,6 +25,8 @@ class WeatherInfoRepositoryImpl(
                 emit(Resource.Error(message = "Oops, something went wrong"))
             } catch (e: IOException) {
                 emit(Resource.Error(message = "Couldn't reach server, check your internet connection."))
+            } catch (e: Exception) {
+                emit(Resource.Error(message = e.message.toString()))
             }
         }
 
