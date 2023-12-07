@@ -1,5 +1,7 @@
 package com.example.weather.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -84,7 +86,7 @@ fun WeatherInfoScreen(
                 }
             }
         }
-        if (weatherState().isLoading) {
+        AnimatedVisibility(visible = weatherState().isLoading, enter = fadeIn()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
