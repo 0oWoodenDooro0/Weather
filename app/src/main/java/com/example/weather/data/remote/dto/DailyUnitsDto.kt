@@ -8,5 +8,7 @@ data class DailyUnitsDto(
     val time: String,
     val precipitation_probability_max: String,
     val uv_index_max: String,
-    val weather_code: String
+    val weather_code: String,
+    val wind_direction_10m_dominant: String,
+    val wind_speed_10m_max: String
 )

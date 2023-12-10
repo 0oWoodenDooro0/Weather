@@ -2,12 +2,13 @@ package com.example.weather.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -23,11 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weather.core.Weather
-import com.example.weather.core.dailyToLocalDateTime
+import com.example.weather.core.dailyToLocalDate
+import com.example.weather.core.formatToFullDayOfWeek
 import com.example.weather.domain.model.Daily
 import kotlin.math.roundToInt
 
-fun LazyListScope.dailyForecastItem(daily: Daily){
+fun LazyListScope.dailyForecast(daily: Daily, navigateToDailyForecast: () -> Unit) {
     item {
         Text(
             text = "7-day forecast",
@@ -39,12 +41,8 @@ fun LazyListScope.dailyForecastItem(daily: Daily){
     items(count = daily.time.size) { index ->
         key(daily.time[index]) {
             DailyForecastItem(
-                when (index) {
-                    0 -> RoundedCornerShape(
-                        topStart = 10.dp,
-                        topEnd = 10.dp
-                    )
-
+                shape = when (index) {
+                    0 -> RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
                     daily.time.size - 1 -> RoundedCornerShape(
                         bottomStart = 10.dp,
                         bottomEnd = 10.dp
@@ -52,10 +50,12 @@ fun LazyListScope.dailyForecastItem(daily: Daily){
 
                     else -> RectangleShape
                 },
-                if (index == 0) "TODAY" else daily.time[index].dailyToLocalDateTime().dayOfWeek.toString(),
-                if (daily.precipitation_probability_max[index] < 10) "" else "${daily.precipitation_probability_max[index]}%",
-                Weather.weatherIcons[daily.weather_code[index]]!!.first,
-                "${daily.temperature_2m_max[index].roundToInt()}°/${daily.temperature_2m_min[index].roundToInt()}°"
+                dayOfWeek = if (index == 0) "Today" else daily.time[index].dailyToLocalDate()
+                    .formatToFullDayOfWeek(),
+                precipitationProbability = if (daily.precipitation_probability_max[index] < 10) "" else "${daily.precipitation_probability_max[index]}%",
+                iconId = Weather.weatherIcons[daily.weather_code[index]]!!.first,
+                temperature = "${daily.temperature_2m_max[index].roundToInt()}°/${daily.temperature_2m_min[index].roundToInt()}°",
+                navigateToDailyForecast
             )
         }
     }
@@ -64,50 +64,46 @@ fun LazyListScope.dailyForecastItem(daily: Daily){
 @Composable
 fun DailyForecastItem(
     shape: Shape,
-    week: String,
+    dayOfWeek: String,
     precipitationProbability: String,
     iconId: Int,
-    temperature: String
+    temperature: String,
+    navigateToDailyForecast: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant, shape),
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape)
+            .clickable { navigateToDailyForecast() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = week,
+            text = dayOfWeek,
             modifier = Modifier
                 .weight(1.5f)
                 .padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
             color = MaterialTheme.colorScheme.onSurface
         )
-        Row(
-            modifier = Modifier.weight(2f),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = precipitationProbability,
-                modifier = Modifier.weight(2f),
-                textAlign = TextAlign.End,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Image(
-                painter = painterResource(iconId),
-                contentDescription = "Weather",
-                modifier = Modifier
-                    .weight(1f)
-                    .width(30.dp)
-                    .height(30.dp)
-            )
-        }
+        Text(
+            text = precipitationProbability,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Image(
+            painter = painterResource(iconId),
+            contentDescription = "Weather",
+            modifier = Modifier
+                .wrapContentSize()
+                .width(40.dp)
+                .height(40.dp)
+        )
         Text(
             text = temperature,
             modifier = Modifier
-                .weight(1f)
-                .padding(end = 10.dp, top = 10.dp, bottom = 10.dp),
+                .wrapContentSize()
+                .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
             textAlign = TextAlign.End,
             color = MaterialTheme.colorScheme.onSurface
         )

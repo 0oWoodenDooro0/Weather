@@ -32,7 +32,7 @@ fun LazyListScope.currentWeather(
             text = "Now",
             modifier = Modifier.padding(vertical = 10.dp),
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 24.sp
+            fontSize = 20.sp
         )
     }
     item {
@@ -50,7 +50,7 @@ fun LazyListScope.currentWeather(
                     )
                     Image(
                         painter = painterResource(
-                            id = if (current.time.minuteToLocalDateTime().plusHours(8L)
+                            id = if (current.time.minuteToLocalDateTime()
                                     .isDay()
                             ) Weather.weatherIcons[current.weather_code]!!.first else Weather.weatherIcons[current.weather_code]!!.second
                         ),

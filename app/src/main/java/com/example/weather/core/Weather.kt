@@ -79,4 +79,7 @@ object Weather {
         LatLng(24.44721326055131, 118.37354654698757),
         LatLng(26.16141282202582, 119.95025445840824),
     )
+
+    const val WEATHER_PAGE = "weatherPage"
+    const val DAILY_FORECAST_PAGE = "dailyForecastPage"
 }

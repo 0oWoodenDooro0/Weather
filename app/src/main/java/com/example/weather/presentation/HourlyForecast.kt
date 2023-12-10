@@ -82,24 +82,22 @@ fun HourlyForecastItem(
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = precipitationProbability,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Image(
-                painter = painterResource(iconId),
-                contentDescription = "Weather",
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(40.dp)
-            )
-            Text(
-                text = hour,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        Text(
+            text = precipitationProbability,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Image(
+            painter = painterResource(iconId),
+            contentDescription = "Weather",
+            modifier = Modifier
+                .width(40.dp)
+                .height(40.dp)
+        )
+        Text(
+            text = hour,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

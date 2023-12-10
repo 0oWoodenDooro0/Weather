@@ -15,16 +15,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.weather.core.Weather
 import com.example.weather.domain.model.LatLng
+import com.example.weather.presentation.DailyForecastScreen
 import com.example.weather.presentation.GPSState
 import com.example.weather.presentation.WeatherInfoScreen
 import com.example.weather.presentation.WeatherInfoViewModel
@@ -45,7 +45,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var geocoder: Geocoder
 
     @SuppressLint("MissingPermission", "UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         client = LocationServices.getFusedLocationProviderClient(applicationContext)
@@ -79,16 +78,18 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
+            val navController = rememberNavController()
+
             SideEffect {
                 enableEdgeToEdge()
                 getLocation(locationCallback, requestPermissionLauncher)
             }
-
+            LaunchedEffect(key1 = true) {
+                viewModel.onSearchWithLatLng(Weather.cityLatLngs[0], 0, GPSState.GPSNotFixed)
+            }
             WeatherTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface
-                ) {
-                    Scaffold {
+                NavHost(navController = navController, startDestination = Weather.WEATHER_PAGE) {
+                    composable(Weather.WEATHER_PAGE) {
                         WeatherInfoScreen(
                             weatherState = { viewModel.weatherInfoState.value },
                             onSearchWithCity = viewModel::onSearchWithLatLng,
@@ -96,7 +97,14 @@ class MainActivity : ComponentActivity() {
                             onGPSClick = {
                                 getLocation(locationCallback, requestPermissionLauncher)
                             },
-                            gpsState = viewModel.gpsState.value
+                            gpsState = viewModel.gpsState.value,
+                            navigateToDailyForecast = { navController.navigate(Weather.DAILY_FORECAST_PAGE) }
+                        )
+                    }
+                    composable(Weather.DAILY_FORECAST_PAGE) {
+                        DailyForecastScreen(
+                            navigatBack = { navController.popBackStack() },
+                            weatherState = { viewModel.weatherInfoState.value },
                         )
                     }
                 }
@@ -104,7 +112,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun getLocation(
+    private fun getLocation(
         locationCallback: LocationCallback,
         requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
     ) {

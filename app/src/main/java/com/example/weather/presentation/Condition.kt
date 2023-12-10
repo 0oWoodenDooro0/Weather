@@ -27,7 +27,7 @@ import com.example.weather.domain.model.Current
 import com.example.weather.domain.model.Daily
 import kotlin.math.roundToInt
 
-fun LazyListScope.condition(current: Current, daily: Daily) {
+fun LazyListScope.currentCondition(current: Current, daily: Daily) {
     item {
         Text(
             text = "Current conditions",
@@ -60,8 +60,8 @@ fun LazyListScope.condition(current: Current, daily: Daily) {
                         painter = painterResource(id = R.drawable.up_arrow),
                         contentDescription = "Wind Direction",
                         modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .padding(10.dp)
                             .rotate(current.wind_direction_10m.toFloat() + 180),
                         tint = MaterialTheme.colorScheme.onSurface
@@ -77,8 +77,8 @@ fun LazyListScope.condition(current: Current, daily: Daily) {
                         painter = painterResource(id = R.drawable.humidity),
                         contentDescription = "Humidity",
                         modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .padding(10.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -87,7 +87,50 @@ fun LazyListScope.condition(current: Current, daily: Daily) {
             Divider(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 thickness = 2.dp,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.outline
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                ConditionItem(
+                    modifier = Modifier.weight(1f),
+                    title = "UV Index",
+                    data = daily.uv_index_max.first().roundToInt().toString(),
+                    unit = ""
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_wb_sunny_24),
+                        contentDescription = "UV Index",
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .padding(10.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                ConditionItem(
+                    modifier = Modifier.weight(1f),
+                    title = "Pressure",
+                    data = current.surface_pressure.roundToInt().toString(),
+                    unit = ""
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_vertical_align_bottom_24),
+                        contentDescription = "Pressure",
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .padding(10.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            Divider(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.outline
             )
             Row(
                 modifier = Modifier
@@ -97,16 +140,15 @@ fun LazyListScope.condition(current: Current, daily: Daily) {
                 ConditionItem(
                     modifier = Modifier.weight(1f),
                     title = "Sunrise",
-                    data = daily.sunrise.first().minuteToLocalDateTime().plusHours(8)
-                        .formatToMinute(),
+                    data = daily.sunrise.first().minuteToLocalDateTime().formatToMinute(),
                     unit = ""
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.sunrise),
                         contentDescription = "Sunrise",
                         modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .padding(10.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -114,16 +156,15 @@ fun LazyListScope.condition(current: Current, daily: Daily) {
                 ConditionItem(
                     modifier = Modifier.weight(1f),
                     title = "Sunset",
-                    data = daily.sunset.first().minuteToLocalDateTime().plusHours(8)
-                        .formatToMinute(),
+                    data = daily.sunset.first().minuteToLocalDateTime().formatToMinute(),
                     unit = ""
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.sunset),
                         contentDescription = "Sunset",
                         modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
+                            .width(50.dp)
+                            .height(50.dp)
                             .padding(10.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -146,12 +187,12 @@ fun ConditionItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         image()
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(5.dp)) {
             Text(
                 text = title,
                 modifier = Modifier.padding(5.dp),
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp
+                fontSize = 14.sp
             )
             Row(modifier = Modifier.padding(5.dp), verticalAlignment = Alignment.Bottom) {
                 Text(

@@ -31,9 +31,11 @@ interface WeatherApi {
             "sunrise",
             "sunset",
             "uv_index_max",
-            "precipitation_probability_max"
+            "precipitation_probability_max",
+            "wind_speed_10m_max",
+            "wind_direction_10m_dominant"
         ),
-        @Query("timezone") timezone: String = "GMT"
+        @Query("timezone") timezone: String = "auto"
     ): WeatherInfoDto
 
     companion object {
