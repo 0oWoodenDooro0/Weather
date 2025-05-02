@@ -53,7 +53,8 @@ object Weather {
         81 to Pair(R.drawable.rain_shower, R.drawable.rain_shower),
         82 to Pair(R.drawable.heavy_rain_shower, R.drawable.heavy_rain_shower),
         85 to Pair(R.drawable.snow_shower, R.drawable.snow_shower),
-        86 to Pair(R.drawable.snow_shower, R.drawable.snow_shower)
+        86 to Pair(R.drawable.snow_shower, R.drawable.snow_shower),
+        95 to Pair(R.drawable.rain_shower, R.drawable.rain_shower)
     )
     val cityLatLngs = listOf(
         LatLng(25.032271975394007, 121.5665022632825),

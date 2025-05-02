@@ -1,5 +1,6 @@
 package com.example.weather.presentation
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,10 +54,11 @@ fun LazyListScope.dailyForecast(daily: Daily, navigateToDailyForecast: () -> Uni
                 dayOfWeek = if (index == 0) "Today" else daily.time[index].dailyToLocalDate()
                     .formatToFullDayOfWeek(),
                 precipitationProbability = if (daily.precipitation_probability_max[index] < 10) "" else "${daily.precipitation_probability_max[index]}%",
-                iconId = Weather.weatherIcons[daily.weather_code[index]]!!.first,
+                iconId = Weather.weatherIcons[daily.weather_code[index]]?.first,
                 temperature = "${daily.temperature_2m_max[index].roundToInt()}°/${daily.temperature_2m_min[index].roundToInt()}°",
                 navigateToDailyForecast
             )
+            Log.d("test", daily.weather_code[index].toString())
         }
     }
 }
@@ -66,7 +68,7 @@ fun DailyForecastItem(
     shape: Shape,
     dayOfWeek: String,
     precipitationProbability: String,
-    iconId: Int,
+    iconId: Int?,
     temperature: String,
     navigateToDailyForecast: () -> Unit
 ) {
@@ -91,14 +93,18 @@ fun DailyForecastItem(
             textAlign = TextAlign.End,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Image(
-            painter = painterResource(iconId),
-            contentDescription = "Weather",
-            modifier = Modifier
-                .wrapContentSize()
-                .width(40.dp)
-                .height(40.dp)
-        )
+        if (iconId != null) {
+            Image(
+                painter = painterResource(iconId),
+                contentDescription = "Weather",
+                modifier = Modifier
+                    .wrapContentSize()
+                    .width(40.dp)
+                    .height(40.dp)
+            )
+        } else {
+            Text("?")
+        }
         Text(
             text = temperature,
             modifier = Modifier

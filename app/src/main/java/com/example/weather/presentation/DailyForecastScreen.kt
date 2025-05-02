@@ -97,7 +97,7 @@ fun LazyListScope.dayForecastDetail(
                 dayOfWeek = if (selectedTabIndex != 0) daily.time[selectedTabIndex].dailyToLocalDate()
                     .formatToDayOfWeekAndDate() else "Today",
                 temperature = "${daily.temperature_2m_max[selectedTabIndex].roundToInt()}°/${daily.temperature_2m_min[selectedTabIndex].roundToInt()}°",
-                imageId = Weather.weatherIcons[daily.weather_code[selectedTabIndex]]!!.first
+                imageId = Weather.weatherIcons[daily.weather_code[selectedTabIndex]]?.first
             )
             DayHourlyForecast(
                 listState = dayHourlyState,

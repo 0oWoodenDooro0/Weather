@@ -54,7 +54,7 @@ fun DayHourlyForecast(
                     if (hourly.precipitation_probability[hourlyIndex] < 10) "" else "${hourly.precipitation_probability[hourlyIndex]}%",
                     if (hourly.time[hourlyIndex].minuteToLocalDateTime()
                             .isDay()
-                    ) Weather.weatherIcons[hourly.weather_code[hourlyIndex]]!!.first else Weather.weatherIcons[hourly.weather_code[hourlyIndex]]!!.second,
+                    ) Weather.weatherIcons[hourly.weather_code[hourlyIndex]]?.first else Weather.weatherIcons[hourly.weather_code[hourlyIndex]]?.second,
                     if (index == 0 && isToday) "Now" else hourly.time[hourlyIndex].minuteToLocalDateTime()
                         .formatToHour()
                 )

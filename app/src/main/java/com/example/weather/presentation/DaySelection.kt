@@ -39,7 +39,7 @@ fun LazyListScope.daySelection(selectedTabIndex: Int, daily: Daily, changeTab: (
                         textColor = if (selectedTabIndex != index) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimaryContainer,
                         dayOfWeek = if (index != 0) day.dailyToLocalDate()
                             .formatToDayOfWeek() else "Today",
-                        imageId = Weather.weatherIcons[daily.weather_code[index]]!!.first,
+                        imageId = Weather.weatherIcons[daily.weather_code[index]]?.first,
                         temperature = "${daily.temperature_2m_max[index].roundToInt()}°/${daily.temperature_2m_min[index].roundToInt()}°"
                     )
                 }
@@ -53,7 +53,7 @@ fun DaySelectionItem(
     color: Color,
     textColor: Color,
     dayOfWeek: String,
-    imageId: Int,
+    imageId: Int?,
     temperature: String
 ) {
     Column(
@@ -73,14 +73,18 @@ fun DaySelectionItem(
                 color = textColor,
                 fontSize = 16.sp
             )
-            Image(
-                painter = painterResource(id = imageId),
-                contentDescription = "Weather",
-                modifier = Modifier
-                    .wrapContentSize()
-                    .width(40.dp)
-                    .height(40.dp)
-            )
+            if (imageId != null) {
+                Image(
+                    painter = painterResource(id = imageId),
+                    contentDescription = "Weather",
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .width(40.dp)
+                        .height(40.dp)
+                )
+            } else {
+                Text("?")
+            }
             Text(
                 text = temperature,
                 color = textColor,

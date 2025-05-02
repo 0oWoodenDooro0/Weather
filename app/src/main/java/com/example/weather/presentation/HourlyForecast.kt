@@ -70,7 +70,7 @@ fun LazyListScope.hourlyForecast(hourly: Hourly, hourlyOffset: Int) {
 fun HourlyForecastItem(
     temperature: String,
     precipitationProbability: String,
-    iconId: Int,
+    iconId: Int?,
     hour: String
 ) {
     Column(
@@ -87,13 +87,17 @@ fun HourlyForecastItem(
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Image(
-            painter = painterResource(iconId),
-            contentDescription = "Weather",
-            modifier = Modifier
-                .width(40.dp)
-                .height(40.dp)
-        )
+        if (iconId != null) {
+            Image(
+                painter = painterResource(iconId),
+                contentDescription = "Weather",
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(40.dp)
+            )
+        } else {
+            Text("?")
+        }
         Text(
             text = hour,
             fontSize = 14.sp,

@@ -13,16 +13,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DayForecast(dayOfWeek: String, temperature: String, imageId: Int) {
+fun DayForecast(dayOfWeek: String, temperature: String, imageId: Int?) {
     Text(text = dayOfWeek, fontSize = 20.sp)
     Row(verticalAlignment = Alignment.Bottom) {
         Text(text = temperature, fontSize = 52.sp)
-        Image(
-            painter = painterResource(id = imageId),
-            contentDescription = "Weather",
-            modifier = Modifier
-                .height(60.dp)
-                .width(60.dp)
-        )
+        if (imageId != null) {
+            Image(
+                painter = painterResource(id = imageId),
+                contentDescription = "Weather",
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(60.dp)
+            )
+        } else {
+            Text("?")
+        }
     }
 }
